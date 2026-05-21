@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Gym Session</title>
+</head>
+<body>
+
+<h1>Create Gym Session</h1>
+
+<form method="POST">
+    {% csrf_token %}
+
+    <label>Session Name</label><br>
+    <input type="text" name="session_name" placeholder="e.g. Push Day"><br><br>
+
+    <label>Session Date and Time</label><br>
+    <input type="datetime-local" name="session_date" required><br><br>
+
+    <label>Notes</label><br>
+    <textarea name="notes"></textarea><br><br>
+
+    <h2>Exercises</h2>
+    <p>Select exercises and add sets once session is created.</p>
+
+    <button type="submit">Create Session</button>
+</form>
+
+</body>
+</html>
