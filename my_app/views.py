@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from django.shortcuts import render, redirect
-from django.utils.dateparse import parse_datetime
+from django.shortcuts import render, redirect, get_object_or_404
+from django.utils import timezone
 from django.contrib import messages
 
 from .models import Exercise, GymSession, SessionExercise, ExerciseSet
@@ -11,25 +11,27 @@ from .models import Exercise, GymSession, SessionExercise, ExerciseSet
 def create_gym_session(request):
     exercises = Exercise.objects.all().order_by("exercise_name")
 
-    if request.method == "POST":
+    # Handle new exercise creation
+    if request.method == "POST" and request.POST.get("add_exercise"):
+        new_name = request.POST.get("new_exercise_name")
+        new_muscle = request.POST.get("new_exercise_muscle")
+        if new_name:
+            Exercise.objects.create(
+                exercise_name=new_name,
+                target_muscle_group=new_muscle
+            )
+            messages.success(request, f"Exercise '{new_name}' added!")
+            return redirect('my_app:create_gym_session')
+
+    if request.method == "POST" and not request.POST.get("add_exercise"):
         session_name = request.POST.get("session_name")
-        session_date = request.POST.get("session_date")
-        notes = request.POST.get("notes")
-
         selected_exercises = request.POST.getlist("exercise_id")
-
-        if not session_date:
-            messages.error(request, "Please select a session date and time.")
-            return render(request, "my_app/create_gym_session.html", {
-                "exercises": exercises
-            })
 
         with transaction.atomic():
             gym_session = GymSession.objects.create(
                 profile=request.user.profile,
                 session_name=session_name,
-                session_date=parse_datetime(session_date),
-                notes=notes,
+                session_date=timezone.now(),  # Automatically set current date/time
             )
 
             for index, exercise_id in enumerate(selected_exercises, start=1):
@@ -42,26 +44,39 @@ def create_gym_session(request):
                     session=gym_session,
                     exercise=exercise,
                     order_number=index,
-                    notes=request.POST.get(f"exercise_notes_{index}", "")
                 )
 
-                reps_list = request.POST.getlist(f"reps_{index}")
-                weight_list = request.POST.getlist(f"weight_{index}")
+                reps = request.POST.get(f"reps_{index}")
+                weight = request.POST.get(f"weight_{index}")
 
-                for set_index, reps in enumerate(reps_list, start=1):
-                    weight = weight_list[set_index - 1] if set_index - 1 < len(weight_list) else None
+                ExerciseSet.objects.create(
+                    session_exercise=session_exercise,
+                    set_number=1,
+                    reps=reps or None,
+                    weight=weight or None,
+                    completed=False,
+                )
 
-                    ExerciseSet.objects.create(
-                        session_exercise=session_exercise,
-                        set_number=set_index,
-                        reps=reps or None,
-                        weight=weight or None,
-                        completed=False,
-                    )
-
-        messages.success(request, "Gym session created successfully.")
-        return redirect("my_app:create_gym_session")
+        return redirect('my_app:home')
 
     return render(request, "my_app/create_gym_session.html", {
         "exercises": exercises
     })
+
+
+@login_required(login_url="users:login")
+def homepage(request):
+    return render(request, "my_app/home.html")
+
+
+@login_required(login_url="users:login")
+def workouts(request):
+    sessions = request.user.profile.sessions.order_by('-session_date')
+    return render(request, "my_app/workouts.html", {"sessions": sessions})
+
+
+@login_required(login_url="users:login")
+def workout_detail(request, session_id):
+    session = get_object_or_404(request.user.profile.sessions, id=session_id)
+    session_exercises = session.session_exercises.select_related('exercise').prefetch_related('sets')
+    return render(request, "my_app/workout_detail.html", {"session": session, "session_exercises": session_exercises})

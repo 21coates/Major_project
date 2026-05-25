@@ -1,0 +1,14 @@
+{% extends 'my_app/base.html' %}
+{% block content %}
+<h1>Your Workouts</h1>
+<ul>
+    {% for session in sessions %}
+        <li>
+            <a href="{% url 'my_app:workout_detail' session.id %}"><strong>{{ session.session_name|default:'Session' }}</strong> - {{ session.session_date|date:'Y-m-d H:i' }}</a>
+        </li>
+    {% empty %}
+        <li>No workouts found.</li>
+    {% endfor %}
+</ul>
+<a href="{% url 'my_app:home' %}">Back to Home</a>
+{% endblock %}

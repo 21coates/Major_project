@@ -23,7 +23,7 @@ def login_view(request):
             if next_url:
                 return redirect(next_url)
 
-            return redirect("my_app:create_gym_session")
+            return redirect("my_app:home")
 
     else:
         form = EmailAuthenticationForm()
@@ -37,7 +37,7 @@ def register(request):
             user = form.save()
             login(request, user)
             messages.success(request, "Your account has been created and profile saved! You are now logged in.")
-            return redirect('my_app:create_gym_session')
+            return redirect('my_app:home')
     else:
         form = UserRegistrationWithProfileForm()
     return render(request, 'users/register.html', {'form': form})

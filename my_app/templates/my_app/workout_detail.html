@@ -1,0 +1,20 @@
+{% extends 'my_app/base.html' %}
+{% block content %}
+<h1>Workout Details</h1>
+<p><strong>{{ session.session_name|default:'Session' }}</strong> - {{ session.session_date|date:'Y-m-d H:i' }}</p>
+<ul>
+    {% for session_exercise in session_exercises %}
+        <li>
+            <strong>{{ session_exercise.exercise.exercise_name }}</strong>
+            <ul>
+                {% for s in session_exercise.sets.all %}
+                    <li>Set {{ s.set_number }}: {{ s.weight|default:'-' }} kg x {{ s.reps|default:'-' }} reps</li>
+                {% endfor %}
+            </ul>
+        </li>
+    {% empty %}
+        <li>No exercises found for this session.</li>
+    {% endfor %}
+</ul>
+<a href="{% url 'my_app:workouts' %}">Back to Workouts</a>
+{% endblock %}
