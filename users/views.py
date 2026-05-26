@@ -16,7 +16,7 @@ def login_view(request):
 
             # Check if profile is incomplete
             profile = getattr(user, 'profile', None)
-            if not profile or not profile.full_name or not profile.age or not profile.gender or not profile.weight_kg or not profile.height_cm:
+            if not profile or not profile.full_name or not profile.date_of_birth or not profile.gender or not profile.weight_kg or not profile.height_cm:
                 return redirect('users:create_profile')
 
             next_url = request.GET.get("next")
@@ -57,11 +57,15 @@ def create_profile(request):
             form.instance.user = request.user
             form.save()
             messages.success(request, 'Profile saved successfully.')
-            return redirect('my_app:create_gym_session')
+            return redirect('users:profile')
     else:
         form = ProfileForm(instance=profile)
 
     return render(request, 'users/create_profile.html', {'form': form})
+
+@login_required(login_url='users:login')
+def profile(request):
+    return render(request, 'users/profile.html', {'profile': request.user.profile, 'user': request.user})
 
 def logout_view(request):
     logout(request)

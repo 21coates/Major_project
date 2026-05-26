@@ -3,6 +3,9 @@ from django.db import transaction
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.contrib import messages
+from django.contrib.auth import get_user_model
+from users.models import Profile
+from django.db.models import Count
 
 from .models import Exercise, GymSession, SessionExercise, ExerciseSet
 
@@ -80,3 +83,8 @@ def workout_detail(request, session_id):
     session = get_object_or_404(request.user.profile.sessions, id=session_id)
     session_exercises = session.session_exercises.select_related('exercise').prefetch_related('sets')
     return render(request, "my_app/workout_detail.html", {"session": session, "session_exercises": session_exercises})
+
+
+def leaderboard(request):
+    leaderboard_data = Profile.objects.annotate(workout_count=Count('sessions')).order_by('-workout_count', 'nickname')
+    return render(request, 'my_app/leaderboard.html', {'leaderboard': leaderboard_data})

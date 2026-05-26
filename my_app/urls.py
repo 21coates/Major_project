@@ -8,4 +8,5 @@ urlpatterns = [
     path("create_gym_session/", views.create_gym_session, name="create_gym_session"),
     path("workouts/", views.workouts, name="workouts"),
     path("workouts/<int:session_id>/", views.workout_detail, name="workout_detail"),
+    path("leaderboard/", views.leaderboard, name="leaderboard"),
 ]

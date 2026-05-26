@@ -8,8 +8,8 @@
     <div class="homepage-options">
         <a href="{% url 'my_app:create_gym_session' %}" class="homepage-btn">Create Workout</a>
         <a href="{% url 'my_app:workouts' %}" class="homepage-btn">View Workouts</a>
-        <a href="/users/profile/" class="homepage-btn">Profile</a>
-        <a href="/leaderboard/" class="homepage-btn">Leaderboard</a>
+        <a href="{% url 'users:profile' %}" class="homepage-btn">Profile</a>
+        <a href="{% url 'my_app:leaderboard' %}" class="homepage-btn">Leaderboard</a>
     </div>
 </div>
 {% endblock %}

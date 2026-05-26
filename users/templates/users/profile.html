@@ -1,0 +1,15 @@
+{% extends 'my_app/base.html' %}
+{% block content %}
+<h1>Profile</h1>
+<ul>
+    <li><strong>Full Name:</strong> {{ profile.full_name }}</li>
+    <li><strong>Nickname:</strong> {{ profile.nickname }}</li>
+    <li><strong>Date of Birth:</strong> {{ profile.date_of_birth|date:'Y-m-d' }}</li>
+    <li><strong>Age:</strong> {{ profile.age }}</li>
+    <li><strong>Gender:</strong> {{ profile.get_gender_display }}</li>
+    <li><strong>Weight (kg):</strong> {{ profile.weight_kg }}</li>
+    <li><strong>Height (cm):</strong> {{ profile.height_cm }}</li>
+</ul>
+<a href="{% url 'users:create_profile' %}">Edit Profile</a>
+<a href="{% url 'my_app:home' %}">Return to Home</a>
+{% endblock %}
