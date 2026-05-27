@@ -88,3 +88,34 @@ def workout_detail(request, session_id):
 def leaderboard(request):
     leaderboard_data = Profile.objects.annotate(workout_count=Count('sessions')).order_by('-workout_count', 'nickname')
     return render(request, 'my_app/leaderboard.html', {'leaderboard': leaderboard_data})
+
+
+@login_required(login_url="users:login")
+def create_exercise(request):
+    if request.method == "POST":
+        if request.POST.get("edit_id"):
+            # Editing or deleting an existing exercise
+            ex_id = request.POST.get("edit_id")
+            ex = get_object_or_404(Exercise, id=ex_id)
+            if request.POST.get("delete_exercise"):
+                ex.delete()
+                messages.success(request, "Exercise removed!")
+                return redirect('my_app:create_exercise')
+            else:
+                ex.exercise_name = request.POST.get("exercise_name")
+                ex.target_muscle_group = request.POST.get("target_muscle_group")
+                ex.save()
+                messages.success(request, f"Exercise '{ex.exercise_name}' updated!")
+                return redirect('my_app:create_exercise')
+        else:
+            # Creating a new exercise
+            name = request.POST.get("exercise_name")
+            muscle = request.POST.get("target_muscle_group")
+            if name:
+                Exercise.objects.create(exercise_name=name, target_muscle_group=muscle)
+                messages.success(request, f"Exercise '{name}' added!")
+                return redirect('my_app:create_exercise')
+            else:
+                messages.error(request, "Exercise name is required.")
+    exercises = Exercise.objects.all().order_by('exercise_name')
+    return render(request, "my_app/create_exercise.html", {"exercises": exercises})

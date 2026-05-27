@@ -7,6 +7,7 @@
     <h1>Welcome to the Gym App!</h1>
     <div class="homepage-options">
         <a href="{% url 'my_app:create_gym_session' %}" class="homepage-btn">Create Workout</a>
+        <a href="{% url 'my_app:create_exercise' %}" class="homepage-btn">Create Exercises</a>
         <a href="{% url 'my_app:workouts' %}" class="homepage-btn">View Workouts</a>
         <a href="{% url 'users:profile' %}" class="homepage-btn">Profile</a>
         <a href="{% url 'my_app:leaderboard' %}" class="homepage-btn">Leaderboard</a>

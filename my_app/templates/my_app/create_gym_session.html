@@ -7,17 +7,6 @@
 
 <h1>Create Gym Session</h1>
 
-<!-- Add New Exercise Form -->
-<form method="POST" style="margin-bottom:2em;">
-    {% csrf_token %}
-    <h2>Add New Exercise</h2>
-    <label>Exercise Name</label><br>
-    <input type="text" name="new_exercise_name" placeholder="e.g. Bench Press" required><br>
-    <label>Target Muscle Group</label><br>
-    <input type="text" name="new_exercise_muscle" placeholder="e.g. Chest"><br>
-    <button type="submit" name="add_exercise" value="1">Add Exercise</button>
-</form>
-
 <!-- Create Gym Session Form -->
 <form method="POST">
     {% csrf_token %}
