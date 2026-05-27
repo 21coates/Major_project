@@ -6,13 +6,21 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from users.models import Profile
 from django.db.models import Count
+from itertools import groupby
 
 from .models import Exercise, GymSession, SessionExercise, ExerciseSet
 
 
 @login_required(login_url="users:login")
 def create_gym_session(request):
-    exercises = Exercise.objects.all().order_by("exercise_name")
+    exercises = Exercise.objects.all().order_by("target_muscle_group", "exercise_name")
+
+    # build grouped list of (muscle_group, exercises_list)
+    def _muscle_key(e):
+        return e.target_muscle_group or "Uncategorized"
+    grouped = []
+    for muscle, grp in groupby(exercises, key=_muscle_key):
+        grouped.append((muscle, list(grp)))
 
     # Handle new exercise creation
     if request.method == "POST" and request.POST.get("add_exercise"):
@@ -30,6 +38,13 @@ def create_gym_session(request):
         session_name = request.POST.get("session_name")
         selected_exercises = request.POST.getlist("exercise_id")
 
+        if not selected_exercises:
+            messages.error(request, "Please select at least one exercise for the session.")
+            return render(request, "my_app/create_gym_session.html", {
+                "exercises": exercises,
+                "grouped_exercises": grouped,
+            })
+
         with transaction.atomic():
             gym_session = GymSession.objects.create(
                 profile=request.user.profile,
@@ -37,7 +52,7 @@ def create_gym_session(request):
                 session_date=timezone.now(),  # Automatically set current date/time
             )
 
-            for index, exercise_id in enumerate(selected_exercises, start=1):
+            for order_number, exercise_id in enumerate(selected_exercises, start=1):
                 if not exercise_id:
                     continue
 
@@ -46,11 +61,11 @@ def create_gym_session(request):
                 session_exercise = SessionExercise.objects.create(
                     session=gym_session,
                     exercise=exercise,
-                    order_number=index,
+                    order_number=order_number,
                 )
 
-                reps = request.POST.get(f"reps_{index}")
-                weight = request.POST.get(f"weight_{index}")
+                reps = request.POST.get(f"reps_{exercise_id}")
+                weight = request.POST.get(f"weight_{exercise_id}")
 
                 ExerciseSet.objects.create(
                     session_exercise=session_exercise,
@@ -63,7 +78,8 @@ def create_gym_session(request):
         return redirect('my_app:home')
 
     return render(request, "my_app/create_gym_session.html", {
-        "exercises": exercises
+        "exercises": exercises,
+        "grouped_exercises": grouped,
     })
 
 
@@ -92,15 +108,18 @@ def leaderboard(request):
 
 @login_required(login_url="users:login")
 def create_exercise(request):
+    edit_id = None
     if request.method == "POST":
         if request.POST.get("edit_id"):
-            # Editing or deleting an existing exercise
             ex_id = request.POST.get("edit_id")
             ex = get_object_or_404(Exercise, id=ex_id)
-            if request.POST.get("delete_exercise"):
+            if request.POST.get("delete_exercise") == '1':
                 ex.delete()
                 messages.success(request, "Exercise removed!")
                 return redirect('my_app:create_exercise')
+            elif request.POST.get("edit_exercise") == '1':
+                # Enter edit mode for this row
+                edit_id = ex_id
             else:
                 ex.exercise_name = request.POST.get("exercise_name")
                 ex.target_muscle_group = request.POST.get("target_muscle_group")
@@ -117,5 +136,11 @@ def create_exercise(request):
                 return redirect('my_app:create_exercise')
             else:
                 messages.error(request, "Exercise name is required.")
-    exercises = Exercise.objects.all().order_by('exercise_name')
-    return render(request, "my_app/create_exercise.html", {"exercises": exercises})
+    exercises = Exercise.objects.all().order_by('target_muscle_group', 'exercise_name')
+    grouped = []
+    def _muscle_key(e):
+        return e.target_muscle_group or "Uncategorized"
+    from itertools import groupby
+    for muscle, grp in groupby(exercises, key=_muscle_key):
+        grouped.append((muscle, list(grp)))
+    return render(request, "my_app/create_exercise.html", {"exercises": exercises, "grouped_exercises": grouped, "edit_id": edit_id})
