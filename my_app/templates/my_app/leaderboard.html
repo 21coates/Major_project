@@ -1,21 +1,6 @@
 {% extends 'my_app/base.html' %}
 {% block content %}
 <h1>Leaderboard: Most Workouts Created</h1>
-<table>
-    <tr>
-        <th>Rank</th>
-        <th>Nickname</th>
-        <th>Workouts</th>
-    </tr>
-    {% for profile in leaderboard %}
-    <tr>
-        <td>{{ forloop.counter }}</td>
-        <td>{{ profile.nickname }}</td>
-        <td>{{ profile.workout_count }}</td>
-    </tr>
-    {% empty %}
-    <tr><td colspan="3">No data available.</td></tr>
-    {% endfor %}
-</table>
+<p>This page has been removed.</p>
 <a href="{% url 'my_app:home' %}">Return to Home</a>
 {% endblock %}

@@ -8,6 +8,8 @@ urlpatterns = [
     path("create_gym_session/", views.create_gym_session, name="create_gym_session"),
     path("workouts/", views.workouts, name="workouts"),
     path("workouts/<int:session_id>/", views.workout_detail, name="workout_detail"),
-    path("leaderboard/", views.leaderboard, name="leaderboard"),
+    path("leaderboard/bench/", views.leaderboard_bench, name="leaderboard_bench"),
+    path("leaderboard/squat/", views.leaderboard_squat, name="leaderboard_squat"),
+    path("leaderboard/deadlift/", views.leaderboard_deadlift, name="leaderboard_deadlift"),
     path("create_exercise/", views.create_exercise, name="create_exercise"),
 ]

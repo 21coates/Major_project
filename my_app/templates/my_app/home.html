@@ -10,7 +10,12 @@
         <a href="{% url 'my_app:create_exercise' %}" class="homepage-btn">Create Exercises</a>
         <a href="{% url 'my_app:workouts' %}" class="homepage-btn">View Workouts</a>
         <a href="{% url 'users:profile' %}" class="homepage-btn">Profile</a>
-        <a href="{% url 'my_app:leaderboard' %}" class="homepage-btn">Leaderboard</a>
+    </div>
+    <div class="leaderboard-links" style="margin-top:1em;">
+        <h3>Lift Leaderboards</h3>
+        <a href="{% url 'my_app:leaderboard_bench' %}" class="homepage-btn">Bench - 1/3/5 RM</a>
+        <a href="{% url 'my_app:leaderboard_squat' %}" class="homepage-btn">Squat - 1/3/5 RM</a>
+        <a href="{% url 'my_app:leaderboard_deadlift' %}" class="homepage-btn">Deadlift - 1/3/5 RM</a>
     </div>
 </div>
 {% endblock %}

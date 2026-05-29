@@ -1,0 +1,20 @@
+{% extends 'my_app/base.html' %}
+{% block content %}
+<h1>Leaderboard: Strongest {{ lift_name }}</h1>
+{% for rep, sets in leaderboards.items %}
+    <h2>{{ rep }} Rep Max</h2>
+    <table>
+        <tr><th>Rank</th><th>Nickname</th><th>Max Weight (kg)</th></tr>
+        {% for entry in sets %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ entry.session_exercise__session__profile__nickname }}</td>
+            <td>{{ entry.max_weight }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3">No data available.</td></tr>
+        {% endfor %}
+    </table>
+{% endfor %}
+<a href="{% url 'my_app:home' %}">Return to Home</a>
+{% endblock %}

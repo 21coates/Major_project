@@ -42,14 +42,13 @@
 
 <script>
 function enableEdit(btn) {
-    var td = btn.parentElement;
-    var tr = td.parentElement;
-    var form = tr.parentElement;
-    var inputs = form.querySelectorAll('input[type="text"]');
+    var form = btn.form;
+    var tr = btn.closest('tr');
+    var inputs = tr.querySelectorAll('input[type="text"]');
     inputs.forEach(function(input) { input.removeAttribute('readonly'); });
-    form.querySelector('button[type="button"]').style.display = 'none'; // Hide Edit
-    form.querySelector('button[type="submit"]').style.display = ''; // Show Save
-    form.querySelector('button[name="delete_exercise"]').style.display = ''; // Show Remove
+    btn.style.display = 'none'; // Hide Edit
+    tr.querySelector('button[type="submit"]').style.display = '';
+    tr.querySelector('button[name="delete_exercise"]').style.display = '';
 }
 </script>
 {% endblock %}

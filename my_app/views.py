@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from users.models import Profile
-from django.db.models import Count
+from django.db.models import Count, Max, Q
 from itertools import groupby
 
 from .models import Exercise, GymSession, SessionExercise, ExerciseSet
@@ -13,6 +13,14 @@ from .models import Exercise, GymSession, SessionExercise, ExerciseSet
 
 @login_required(login_url="users:login")
 def create_gym_session(request):
+    # Ensure staple exercises exist
+    staple_exercises = [
+        ("Bench Press", "Chest"),
+        ("Squat", "Legs"),
+        ("Deadlift", "Back")
+    ]
+    for name, muscle in staple_exercises:
+        Exercise.objects.get_or_create(exercise_name=name, defaults={"target_muscle_group": muscle})
     exercises = Exercise.objects.all().order_by("target_muscle_group", "exercise_name")
 
     # build grouped list of (muscle_group, exercises_list)
@@ -101,9 +109,9 @@ def workout_detail(request, session_id):
     return render(request, "my_app/workout_detail.html", {"session": session, "session_exercises": session_exercises})
 
 
-def leaderboard(request):
-    leaderboard_data = Profile.objects.annotate(workout_count=Count('sessions')).order_by('-workout_count', 'nickname')
-    return render(request, 'my_app/leaderboard.html', {'leaderboard': leaderboard_data})
+# def leaderboard(request):
+#     leaderboard_data = Profile.objects.annotate(workout_count=Count('sessions')).order_by('-workout_count', 'nickname')
+#     return render(request, 'my_app/leaderboard.html', {'leaderboard': leaderboard_data})
 
 
 @login_required(login_url="users:login")
@@ -144,3 +152,31 @@ def create_exercise(request):
     for muscle, grp in groupby(exercises, key=_muscle_key):
         grouped.append((muscle, list(grp)))
     return render(request, "my_app/create_exercise.html", {"exercises": exercises, "grouped_exercises": grouped, "edit_id": edit_id})
+
+
+def leaderboard_bench(request):
+    return _leaderboard_lift(request, 'Bench Press')
+def leaderboard_squat(request):
+    return _leaderboard_lift(request, 'Squat')
+def leaderboard_deadlift(request):
+    return _leaderboard_lift(request, 'Deadlift')
+
+def _leaderboard_lift(request, lift_name):
+    # 1RM, 3RM, 5RM for the given lift
+    rep_targets = [1, 3, 5]
+    leaderboards = {}
+    for rep in rep_targets:
+        sets = ExerciseSet.objects.filter(
+            session_exercise__exercise__exercise_name__iexact=lift_name,
+            reps=rep
+        ).values(
+            'session_exercise__session__profile__nickname',
+            'session_exercise__session__profile__id'
+        ).annotate(
+            max_weight=Max('weight')
+        ).order_by('-max_weight')
+        leaderboards[rep] = sets
+    return render(request, 'my_app/leaderboard_lift.html', {
+        'lift_name': lift_name,
+        'leaderboards': leaderboards
+    })
