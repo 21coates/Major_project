@@ -4,11 +4,15 @@
 
 {% block content %}
     <div class="login-container">
+        <img src="{% static 'my_app/Ascend_Fitness.png' %}" alt="Logo">
         <form action="{% url 'users:login' %}" method="post">
             {% csrf_token %}
             <input type="text" name="username" placeholder="Username" required>
             <input type="password" name="password" placeholder="Password" required>
-            <input type="submit" value="Login">
+            <div class="login-actions">
+                <input type="submit" value="Login" class="btn">
+                <a href="{% url 'users:register' %}" class="register-link btn secondary">Register</a>
+            </div>
         </form>
     </div>
 {% endblock %}

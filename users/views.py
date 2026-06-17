@@ -28,7 +28,8 @@ def login_view(request):
     else:
         form = EmailAuthenticationForm()
 
-    return render(request, "users/login.html", {"form": form})
+    # Hide header auth buttons on this page
+    return render(request, "users/login.html", {"form": form, "hide_header_auth": True})
 
 def register(request):
     if request.method == "POST":
