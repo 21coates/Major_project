@@ -1,15 +1,32 @@
 {% extends 'my_app/base.html' %}
 {% block content %}
 <h1>Profile</h1>
-<ul>
-    <li><strong>Full Name:</strong> {{ profile.full_name }}</li>
-    <li><strong>Nickname:</strong> {{ profile.nickname }}</li>
-    <li><strong>Date of Birth:</strong> {{ profile.date_of_birth|date:'Y-m-d' }}</li>
-    <li><strong>Age:</strong> {{ profile.age }}</li>
-    <li><strong>Gender:</strong> {{ profile.get_gender_display }}</li>
-    <li><strong>Weight (kg):</strong> {{ profile.weight_kg }}</li>
-    <li><strong>Height (cm):</strong> {{ profile.height_cm }}</li>
-</ul>
-<a href="{% url 'users:create_profile' %}">Edit Profile</a>
-<a href="{% url 'my_app:home' %}">Return to Home</a>
+<div class="card">
+  <div style="display:flex;align-items:center;gap:16px;justify-content:space-between;flex-wrap:wrap">
+    <div>
+      <h2 style="margin:0">{{ profile.nickname }}</h2>
+      <div style="color:var(--muted-text)">Level {{ profile.level }}</div>
+    </div>
+    <div style="min-width:220px;flex:1">
+      <div class="xp-bar-label">XP: {{ profile.xp }} / {{ profile.xp_for_next_level(profile.level) }} ({{ profile.xp_percent }}%)</div>
+      <div class="xp-bar">
+        <div class="xp-bar-fill" style="width:{{ profile.xp_percent }}%"></div>
+      </div>
+    </div>
+  </div>
+  <hr style="border:none;border-top:1px solid rgba(255,255,255,0.03);margin:12px 0">
+  <ul style="list-style:none;padding:0;margin:0">
+      <li><strong>Full Name:</strong> {{ profile.full_name }}</li>
+      <li><strong>Nickname:</strong> {{ profile.nickname }}</li>
+      <li><strong>Date of Birth:</strong> {{ profile.date_of_birth|date:'Y-m-d' }}</li>
+      <li><strong>Age:</strong> {{ profile.age }}</li>
+      <li><strong>Gender:</strong> {{ profile.get_gender_display }}</li>
+      <li><strong>Weight (kg):</strong> {{ profile.weight_kg }}</li>
+      <li><strong>Height (cm):</strong> {{ profile.height_cm }}</li>
+  </ul>
+  <div style="margin-top:12px;display:flex;gap:8px">
+    <a href="{% url 'users:create_profile' %}" class="btn">Edit Profile</a>
+    <a href="{% url 'my_app:home' %}" class="btn secondary">Return to Home</a>
+  </div>
+</div>
 {% endblock %}

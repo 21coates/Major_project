@@ -9,7 +9,7 @@
     <header>
         <div class="header-inner">
             <div class="logo">
-                <a href="{% url 'my_app:home' %}"><img src="{% static 'my_app/Ascend_Fitness.png' %}" alt="my_app Logo"></a>
+                <!-- Header logo intentionally left blank (main logo shown on pages) -->
             </div>
             <div class="user-area">
                 {% if request.user.is_authenticated %}
@@ -33,12 +33,7 @@
                     </div>
                 </div>
                 {% else %}
-                {% if not hide_header_auth %}
-                <div class="user-info">
-                    <a href="{% url 'users:login' %}" class="btn">Login</a>
-                    <a href="{% url 'users:register' %}" class="btn secondary">Register</a>
-                </div>
-                {% endif %}
+                <!-- no header auth links for unauthenticated users -->
                 {% endif %}
             </div>
         </div>

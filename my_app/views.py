@@ -83,6 +83,61 @@ def create_gym_session(request):
                     completed=False,
                 )
 
+            # grant XP for creating a workout
+            try:
+                profile = request.user.profile
+                xp_awarded = 50  # base XP for creating a workout
+                extra_xp = 0
+                profile.add_xp(xp_awarded)
+                messages.success(request, f"Workout saved! You gained {xp_awarded} XP.")
+
+                # Additional XP for PRs and leaderboard placements on staple lifts
+                staple_names = ["Bench Press", "Squat", "Deadlift"]
+                rank_xp_map = {1: 200, 2: 150, 3: 100}
+                pr_xp = 75
+                # iterate through sets in this session
+                session_exercises = gym_session.session_exercises.select_related('exercise').prefetch_related('sets')
+                for se in session_exercises:
+                    ex_name = se.exercise.exercise_name
+                    for s in se.sets.all():
+                        try:
+                            reps = int(s.reps) if s.reps is not None else None
+                        except Exception:
+                            reps = None
+                        if s.weight and reps and ex_name in staple_names and reps in (1,3,5):
+                            weight_val = float(s.weight)
+                            # check user's previous best excluding this session
+                            prev_best = ExerciseSet.objects.filter(
+                                session_exercise__session__profile=profile,
+                                session_exercise__exercise=se.exercise,
+                                reps=reps
+                            ).exclude(session_exercise__session=gym_session).aggregate(prev_max=Max('weight'))['prev_max']
+                            if not prev_best or float(prev_best) < weight_val:
+                                extra_xp += pr_xp
+                                messages.success(request, f"New PR on {ex_name} {reps}RM! +{pr_xp} XP")
+
+                            # determine global rank for this weight for the lift/rep
+                            # obtain max per profile then compute rank
+                            profile_maxes = ExerciseSet.objects.filter(
+                                session_exercise__exercise=se.exercise,
+                                reps=reps
+                            ).values('session_exercise__session__profile').annotate(max_weight=Max('weight')).order_by('-max_weight')
+                            # find rank position for current weight
+                            rank = 1
+                            for pm in profile_maxes:
+                                if pm['max_weight'] > weight_val:
+                                    rank += 1
+                                else:
+                                    break
+                            if rank in rank_xp_map:
+                                xp_for_rank = rank_xp_map[rank]
+                                extra_xp += xp_for_rank
+                                messages.success(request, f"Placed #{rank} on {ex_name} {reps}RM leaderboard! +{xp_for_rank} XP")
+                if extra_xp > 0:
+                    profile.add_xp(extra_xp)
+            except Exception:
+                pass
+
         return redirect('my_app:home')
 
     return render(request, "my_app/create_gym_session.html", {

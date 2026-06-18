@@ -30,6 +30,10 @@ class Profile(models.Model):
     weight_kg = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True)
     height_cm = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True)
 
+    # XP / Leveling system
+    xp = models.IntegerField(default=0)
+    level = models.IntegerField(default=1)
+
     @property
     def age(self):
         if self.date_of_birth:
@@ -39,6 +43,41 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.username
+
+    @staticmethod
+    def xp_for_next_level(level:int) -> int:
+        """Define XP curve. Using quadratic growth: 100 * level^2"""
+        return 100 * (level ** 2)
+
+    def add_xp(self, amount:int) -> int:
+        """Add xp to profile, handle level ups and return number of levels gained."""
+        if amount <= 0:
+            return 0
+        self.xp = int(self.xp) + int(amount)
+        levels_gained = 0
+        # loop in case XP overshoots multiple levels
+        while self.xp >= Profile.xp_for_next_level(self.level):
+            required = Profile.xp_for_next_level(self.level)
+            self.xp -= required
+            self.level += 1
+            levels_gained += 1
+        self.save(update_fields=['xp','level'])
+        return levels_gained
+
+    @property
+    def xp_to_next(self) -> int:
+        """XP still required to reach next level."""
+        req = Profile.xp_for_next_level(self.level)
+        return max(0, req - int(self.xp))
+
+    @property
+    def xp_percent(self) -> int:
+        """Percent progress toward next level (0-100)."""
+        req = Profile.xp_for_next_level(self.level)
+        if req <= 0:
+            return 0
+        return min(100, int((int(self.xp) / req) * 100))
+
 
 def _unique_nickname(base: str) -> str:
     base = (base or "user").strip() or "user"

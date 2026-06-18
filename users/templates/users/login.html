@@ -11,7 +11,9 @@
             <input type="password" name="password" placeholder="Password" required>
             <div class="login-actions">
                 <input type="submit" value="Login" class="btn">
-                <a href="{% url 'users:register' %}" class="register-link btn secondary">Register</a>
+            </div>
+            <div class="login-register-row" style="margin-top:8px;text-align:right;">
+                <a href="{% url 'users:register' %}" class="btn secondary register-link">Register</a>
             </div>
         </form>
     </div>

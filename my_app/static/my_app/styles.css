@@ -161,8 +161,14 @@ header{
 .login-actions{
   display:flex;
   align-items:center;
-  justify-content:space-between;
-  margin-top:8px;
+  gap:10px;
+}
+.login-actions .btn{
+  flex:1;
+}
+.login-register-row{
+  display:flex;
+  justify-content:flex-end;
 }
 .login-actions .register-link{
   margin-left:auto;
@@ -170,7 +176,7 @@ header{
 
 /* Darken focus blue on inputs */
 input:focus{
-  box-shadow:0 0 0 4px rgba(26,115,232,0.16);
+  box-shadow:0 0 0 4px rgba(15,94,203,0.18);
   border-color:var(--accent-strong);
 }
 
@@ -203,13 +209,19 @@ input[type="text"], input[type="number"], input[type="password"], textarea, sele
   color:var(--text);
   padding:10px 12px;border-radius:8px;font-size:15px;margin:6px 0;
 }
+input[type="text"], input[type="password"], input[type="email"]{
+  background:var(--muted-surface);
+  color:var(--text);
+}
+input::placeholder{color:rgba(255,255,255,0.35)}
 input:focus, textarea:focus, select:focus{outline:none;box-shadow:0 0 0 4px rgba(26,115,232,0.08);border-color:var(--accent)}
 
 button, .btn, input[type="submit"]{
   background:var(--accent);
   color:white;border:none;padding:10px 14px;border-radius:8px;cursor:pointer;font-weight:600;
 }
-button.secondary{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--text)}
+button.secondary, .register-link.btn.secondary{background:linear-gradient(180deg,#ff7a00,#e06500);color:#fff;border:none}
+button.secondary:hover{opacity:0.95}
 button.danger{background:var(--danger)}
 button:hover{opacity:0.95}
 
@@ -220,8 +232,8 @@ th{color:var(--accent);font-weight:700}
 tr:nth-child(even){background:rgba(255,255,255,0.01)}
 
 /* Messages */
-.messages{list-style:none;padding:0;margin:12px 0}
-.messages li{padding:8px 12px;border-radius:8px;background:rgba(255,255,255,0.02);margin-bottom:8px}
+.messages{position:fixed;right:18px;bottom:18px;max-width:360px;z-index:80}
+.messages li{margin-bottom:8px}
 .messages li.error{border-left:4px solid var(--danger);color:var(--danger)}
 .messages li.success{border-left:4px solid var(--accent);color:var(--accent)}
 
@@ -231,6 +243,30 @@ footer{background:transparent;color:var(--muted-text);padding:18px 12px;text-ali
 /* Utility classes */
 .center{display:flex;align-items:center;justify-content:center}
 .mt-8{margin-top:8px}.mt-12{margin-top:12px}
+
+/* Remove underline from links globally */
+a{ text-decoration:none }
+
+/* Register button should match login: same size, on same line */
+.login-actions{display:flex;align-items:center;gap:10px}
+.login-actions .btn{flex:1}
+.login-register-row{display:flex;justify-content:flex-end}
+.register-link{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:8px;border:none;font-weight:600}
+
+/* Register orange color consistent */
+.btn.secondary{background:linear-gradient(180deg,#ff7a00,#e06500);color:#fff;border:none}
+.btn.secondary.register-link{font-size:15px}
+
+/* Ensure register on registration page uses same orange */
+.register-page-btn{background:linear-gradient(180deg,#ff7a00,#e06500);color:#fff;border:none;padding:10px 14px;border-radius:8px;font-weight:600}
+
+/* Reduce default anchor styling in header */
+.header-inner .user-info a{background:transparent;border:none}
+
+/* XP progress bar */
+.xp-bar-label{font-size:13px;color:var(--muted-text);margin-bottom:6px}
+.xp-bar{background:rgba(255,255,255,0.03);border-radius:999px;height:14px;overflow:hidden;border:1px solid rgba(255,255,255,0.02)}
+.xp-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),#4ea1ff);transition:width 520ms cubic-bezier(.2,.9,.2,1)}
 
 /* Responsive tweaks */
 @media (max-width:720px){

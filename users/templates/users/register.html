@@ -2,12 +2,16 @@
 {% load static %}
 {% block title %}Register - My App{% endblock %}
 {% block content %}
-    <h1>Register for My App</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Register</button>
-    </form>
-    <p>Already have an account? <a href="{% url 'users:login' %}">Login</a></p>
-    <a href="{% url 'my_app:home' %}">Return to Home</a>
+    <div class="card" style="max-width:480px;margin:0 auto;padding:28px;">
+      <h1 style="text-align:center;margin-top:0">Create an account</h1>
+      <form method="post">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <div style="display:flex;justify-content:center;margin-top:12px">
+            <button type="submit" class="register-page-btn">Register</button>
+          </div>
+      </form>
+      <p style="text-align:center;margin-top:12px">Already have an account? <a href="{% url 'users:login' %}">Login</a></p>
+      <a href="{% url 'my_app:home' %}" style="display:block;text-align:center;margin-top:8px">Return to Home</a>
+    </div>
 {% endblock %}

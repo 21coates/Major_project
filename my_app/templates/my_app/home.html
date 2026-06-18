@@ -4,6 +4,27 @@
 
 {% block content %}
 <div class="homepage-container">
+    <div class="logo">
+        <img src="{% static 'my_app/Ascend_Fitness.png' %}" alt="Logo">
+    </div>
+
+    {% if request.user.is_authenticated %}
+    <div class="home-xp-card card" role="region" aria-label="XP status">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div>
+          <div style="font-weight:700">{{ request.user.profile.nickname }}</div>
+          <div style="color:var(--muted-text);font-size:13px">Level {{ request.user.profile.level }}</div>
+        </div>
+        <div style="flex:1;min-width:220px">
+          <div class="xp-bar-label">XP: {{ request.user.profile.xp }} ({{ request.user.profile.xp_percent }}% to next)</div>
+          <div class="xp-bar" aria-hidden="true">
+            <div class="xp-bar-fill" style="width:{{ request.user.profile.xp_percent }}%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
     <h1>Welcome to the Gym App!</h1>
     <div class="homepage-options">
         <a href="{% url 'my_app:create_gym_session' %}" class="homepage-btn">Create Workout</a>
