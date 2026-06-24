@@ -233,10 +233,11 @@ th{color:var(--accent);font-weight:700}
 tr:nth-child(even){background:rgba(255,255,255,0.01)}
 
 /* Messages */
-.messages{position:fixed;right:18px;bottom:18px;max-width:360px;z-index:80}
-.messages li{margin-bottom:8px}
-.messages li.error{border-left:4px solid var(--danger);color:var(--danger)}
-.messages li.success{border-left:4px solid var(--accent);color:var(--accent)}
+.messages{display:none}
+.messages-top-left{position:fixed;left:18px;top:18px;max-width:420px;z-index:100}
+.messages-top-left li{margin-bottom:8px; background:var(--surface); padding:10px 12px; border-radius:8px; border:1px solid rgba(255,255,255,0.02)}
+.messages-top-left li.error{border-left:4px solid var(--danger);color:var(--danger);background:linear-gradient(180deg, rgba(255,82,82,0.03), rgba(255,82,82,0.01))}
+.messages-top-left li.success{border-left:4px solid var(--accent);color:var(--accent);background:linear-gradient(180deg, rgba(26,115,232,0.03), rgba(26,115,232,0.01))}
 
 /* Footer pinned to bottom */
 footer{background:transparent;color:var(--muted-text);padding:18px 12px;text-align:center;border-top:1px solid rgba(255,255,255,0.02)}

@@ -8,6 +8,7 @@ from users.models import Profile
 from django.db.models import Count, Max, Q
 from itertools import groupby
 from django.conf import settings
+from datetime import date, timedelta
 
 from .models import Exercise, GymSession, SessionExercise, ExerciseSet
 
@@ -100,9 +101,29 @@ def create_gym_session(request):
             try:
                 profile = request.user.profile
                 xp_awarded = 50  # base XP for creating a workout
+
+                # handle streaks
+                today_date = date.today()
+                yesterday = today_date - timedelta(days=1)
+                streak_multiplier = 1.0
+                if profile.last_workout_date == today_date:
+                    # already logged today, no extra streak
+                    pass
+                elif profile.last_workout_date == yesterday:
+                    profile.streak_count = (profile.streak_count or 0) + 1
+                else:
+                    profile.streak_count = 1
+                profile.last_workout_date = today_date
+                profile.save(update_fields=['streak_count','last_workout_date'])
+
+                # define multiplier: small growth per day, cap at 3x
+                streak_multiplier = 1.0 + min(2.0, (profile.streak_count - 1) * 0.1)
+
+                xp_awarded = int(xp_awarded * streak_multiplier)
+
                 extra_xp = 0
                 profile.add_xp(xp_awarded)
-                messages.success(request, f"Workout saved! You gained {xp_awarded} XP.")
+                messages.success(request, f"Workout saved! You gained {xp_awarded} XP (streak x{streak_multiplier:.1f}).")
 
                 # Additional XP for PRs and leaderboard placements on staple lifts
                 staple_names = ["Bench Press", "Squat", "Deadlift"]

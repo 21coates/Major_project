@@ -16,7 +16,7 @@
           <div style="color:var(--muted-text);font-size:13px">Level {{ request.user.profile.level }}</div>
         </div>
         <div style="flex:1;min-width:220px">
-          <div class="xp-bar-label">XP: {{ request.user.profile.xp }} ({{ request.user.profile.xp_percent }}% to next)</div>
+          <div class="xp-bar-label">XP: {{ request.user.profile.xp_fraction }}</div>
           <div class="xp-bar" aria-hidden="true">
             <div class="xp-bar-fill" style="width:{{ request.user.profile.xp_percent }}%"></div>
           </div>

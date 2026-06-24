@@ -33,6 +33,9 @@ class Profile(models.Model):
     # XP / Leveling system
     xp = models.IntegerField(default=0)
     level = models.IntegerField(default=1)
+    # Streak tracking
+    streak_count = models.IntegerField(default=0)
+    last_workout_date = models.DateField(blank=True, null=True)
 
     @property
     def age(self):
@@ -82,6 +85,12 @@ class Profile(models.Model):
     def xp_next_total(self) -> int:
         """Total XP required for the current level (useful in templates)."""
         return Profile.xp_for_next_level(self.level)
+
+    @property
+    def xp_fraction(self) -> str:
+        """Return a 'current/required' formatted string for templates."""
+        req = Profile.xp_for_next_level(self.level)
+        return f"{int(self.xp)} / {req}"
 
 
 def _unique_nickname(base: str) -> str:
