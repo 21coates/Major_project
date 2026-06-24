@@ -1,23 +1,17 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
 <head>
     <title>Create Workout</title>
-    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="{% static 'my_app/styles.css' %}">
 </head>
 <body>
 
 <header class="header">
-    <div class="logo">
-        <img src="/static/logo.png" alt="Logo">
+    <div class="logo workout-logo">
+        <img src="{% static 'my_app/Ascend_Fitness.png' %}" alt="Logo">
     </div>
-
-    <div class="user-info">
-        <span>{{ request.user.username }}</span>
-        <form method="POST" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button type="submit">LOGOUT</button>
-        </form>
-    </div>
+    <!-- no logout here to keep header minimal; logout is available in profile menu -->
 </header>
 
 <main>
@@ -25,7 +19,7 @@
 
         <h1 style="font-size:14px; margin-bottom:30px;">CREATE WORKOUT</h1>
 
-        <form method="POST">
+        <form method="POST" id="create-session-form">
             {% csrf_token %}
 
             <label>Workout Category:</label><br>
@@ -36,10 +30,10 @@
             <div id="exercise-container">
 
                 <div class="exercise-row">
-                    <select name="exercise">
+                    <select name="exercise" class="exercise-select">
                         <option value="">-- SELECT EXERCISE --</option>
                         {% for ex in exercises %}
-                            <option value="{{ ex.id }}">{{ ex.name }} ({{ ex.muscle_group }})</option>
+                            <option value="{{ ex.id }}">{{ ex.exercise_name }} ({{ ex.target_muscle_group }})</option>
                         {% endfor %}
                     </select>
 
@@ -47,43 +41,55 @@
                     <input type="number" name="reps" placeholder="REPS" min="1">
                     <input type="number" name="weight" placeholder="WEIGHT (KG)" step="0.1">
 
-                    <button type="button" class="remove-row" style="width:150px;">REMOVE</button>
+                    <div class="row-actions">
+                        <button type="button" class="remove-row btn secondary" style="width:120px;">REMOVE</button>
+                        <button type="button" class="add-row btn" style="width:120px;">ADD</button>
+                    </div>
                 </div>
 
             </div>
 
-            <button type="button" id="add-row">ADD EXERCISE</button>
-
-            <button type="submit">SAVE WORKOUT</button>
+            <div style="display:flex;gap:12px;margin-top:12px;align-items:center">
+                <button type="submit" class="btn">SAVE WORKOUT</button>
+                <a href="{% url 'my_app:home' %}" class="btn secondary">Return to Home</a>
+            </div>
         </form>
 
     </div>
 </main>
 
 <footer>
-    <p>RETRO FITNESS SYSTEM</p>
+    <p>&copy; 2026 Oakhill College Year 12 Major Project</p>
 </footer>
 
 <script>
-// Add new exercise row
-document.getElementById("add-row").addEventListener("click", function () {
-    const container = document.getElementById("exercise-container");
-    const firstRow = container.querySelector(".exercise-row");
-    const newRow = firstRow.cloneNode(true);
-
-    newRow.querySelectorAll("input").forEach(i => i.value = "");
-    newRow.querySelector("select").selectedIndex = 0;
-
-    container.appendChild(newRow);
+// Add new exercise row (delegated for add buttons)
+document.addEventListener('click', function (e) {
+    if (e.target.classList.contains('add-row')) {
+        const currentRow = e.target.closest('.exercise-row');
+        const container = document.getElementById('exercise-container');
+        const newRow = currentRow.cloneNode(true);
+        // reset values
+        newRow.querySelectorAll('input').forEach(i => i.value = '');
+        newRow.querySelector('select').selectedIndex = 0;
+        container.appendChild(newRow);
+    }
+    if (e.target.classList.contains('remove-row')) {
+        const rows = document.querySelectorAll('.exercise-row');
+        if (rows.length > 1) {
+            e.target.closest('.exercise-row').remove();
+        }
+    }
 });
 
-// Remove row
-document.addEventListener("click", function (e) {
-    if (e.target.classList.contains("remove-row")) {
-        const rows = document.querySelectorAll(".exercise-row");
-        if (rows.length > 1) {
-            e.target.parentElement.remove();
-        }
+// Validate form before submit to ensure at least one exercise is selected
+document.getElementById('create-session-form').addEventListener('submit', function(e){
+    const selects = document.querySelectorAll('.exercise-select');
+    let any = false;
+    selects.forEach(s => { if(s && s.value) any = true; });
+    if(!any){
+        e.preventDefault();
+        alert('Please select at least one exercise before saving the workout.');
     }
 });
 

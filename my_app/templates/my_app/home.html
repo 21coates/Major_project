@@ -10,7 +10,7 @@
 
     {% if request.user.is_authenticated %}
     <div class="home-xp-card card" role="region" aria-label="XP status">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
         <div>
           <div style="font-weight:700">{{ request.user.profile.nickname }}</div>
           <div style="color:var(--muted-text);font-size:13px">Level {{ request.user.profile.level }}</div>
@@ -30,7 +30,7 @@
         <a href="{% url 'my_app:create_gym_session' %}" class="homepage-btn">Create Workout</a>
         <a href="{% url 'my_app:create_exercise' %}" class="homepage-btn">Create Exercises</a>
         <a href="{% url 'my_app:workouts' %}" class="homepage-btn">View Workouts</a>
-        <a href="{% url 'users:profile' %}" class="homepage-btn">Profile</a>
+        <!-- Profile removed from the homepage navigation; access via avatar only -->
     </div>
     <div class="leaderboard-links" style="margin-top:1em;">
         <h3>Lift Leaderboards</h3>

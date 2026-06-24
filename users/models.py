@@ -78,6 +78,11 @@ class Profile(models.Model):
             return 0
         return min(100, int((int(self.xp) / req) * 100))
 
+    @property
+    def xp_next_total(self) -> int:
+        """Total XP required for the current level (useful in templates)."""
+        return Profile.xp_for_next_level(self.level)
+
 
 def _unique_nickname(base: str) -> str:
     base = (base or "user").strip() or "user"

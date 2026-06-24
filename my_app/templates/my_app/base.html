@@ -15,16 +15,16 @@
                 {% if request.user.is_authenticated %}
                 <div class="user-info">
                     <div class="avatar-wrapper" style="position:relative">
-                        <button id="avatarBtn" class="avatar-btn" aria-haspopup="true" aria-expanded="false" aria-label="Open profile menu"></button>
+                        {# Compute initials using first_name and last_name directly to avoid template.split #}
+                        {% with fn=request.user.first_name|default:'' ln=request.user.last_name|default:'' %}
+                            {% if fn or ln %}
+                                <button id="avatarBtn" class="avatar-btn" data-initials="{{ fn|slice:":1"|upper }}{{ ln|slice:":1"|upper }}" aria-haspopup="true" aria-expanded="false" aria-label="Open profile menu"></button>
+                            {% else %}
+                                <button id="avatarBtn" class="avatar-btn" data-initials="{{ request.user.username|slice:":1"|upper }}" aria-haspopup="true" aria-expanded="false" aria-label="Open profile menu"></button>
+                            {% endif %}
+                        {% endwith %}
                         <div id="profileMenu" class="profile-menu" aria-hidden="true">
                             <a href="{% url 'users:profile' %}">Profile</a>
-                            <div class="settings-block">
-                                <button type="button" id="settingsToggle" class="settings-toggle">Settings</button>
-                                <div id="settingsMenu" class="settings-submenu" aria-hidden="true">
-                                    <a href="{% url 'users:create_profile' %}">Account Settings</a>
-                                    <a href="#">Notification Preferences</a>
-                                </div>
-                            </div>
                             <form id="logoutForm" action="{% url 'users:logout' %}" method="post">
                                 {% csrf_token %}
                                 <button type="submit" class="danger">Logout</button>
@@ -70,20 +70,8 @@ document.addEventListener('click', function(e){
         // click outside -> close
         if(menu) menu.style.display = 'none';
         if(btn) btn.setAttribute('aria-expanded','false');
-        var settings = document.getElementById('settingsMenu'); if(settings) settings.style.display='none';
     }
 });
-
-// Toggle settings submenu
-var settingsToggle = document.getElementById('settingsToggle');
-if(settingsToggle){
-    settingsToggle.addEventListener('click', function(e){
-        e.stopPropagation();
-        var sm = document.getElementById('settingsMenu');
-        if(!sm) return;
-        sm.style.display = sm.style.display === 'block' ? 'none' : 'block';
-    });
-}
 </script>
 </body>
 </html>

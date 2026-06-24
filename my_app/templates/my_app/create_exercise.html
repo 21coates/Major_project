@@ -27,9 +27,9 @@
                 </td>
                 <td>
                     <input type="hidden" name="edit_id" value="{{ ex.id }}">
-                    <button type="button" onclick="enableEdit(this)">Edit</button>
-                    <button type="submit" style="display:none;">Save</button>
-                    <button type="submit" name="delete_exercise" value="1" style="color:red;display:none;">Remove</button>
+                    <button type="button" onclick="enableEdit(this)" class="btn">Edit</button>
+                    <button type="submit" style="display:none;" class="btn">Save</button>
+                    <button type="submit" name="delete_exercise" value="1" style="color:red;display:none;" class="btn danger">Remove</button>
                 </td>
             </tr>
         </form>
@@ -38,7 +38,7 @@
     <tr><td colspan="3">No exercises found.</td></tr>
     {% endfor %}
 </table>
-<a href="{% url 'my_app:home' %}">Return to Home</a>
+<a href="{% url 'my_app:home' %}" class="btn secondary">Return to Home</a>
 
 <script>
 function enableEdit(btn) {

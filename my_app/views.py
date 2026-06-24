@@ -7,6 +7,7 @@ from django.contrib.auth import get_user_model
 from users.models import Profile
 from django.db.models import Count, Max, Q
 from itertools import groupby
+from django.conf import settings
 
 from .models import Exercise, GymSession, SessionExercise, ExerciseSet
 
@@ -43,10 +44,14 @@ def create_gym_session(request):
             return redirect('my_app:create_gym_session')
 
     if request.method == "POST" and not request.POST.get("add_exercise"):
-        session_name = request.POST.get("session_name")
-        selected_exercises = request.POST.getlist("exercise_id")
+        # Support arrays of exercises, reps and weights from the form
+        session_name = request.POST.get("category") or request.POST.get("session_name")
+        exercise_ids = request.POST.getlist("exercise")
+        reps_list = request.POST.getlist("reps")
+        weight_list = request.POST.getlist("weight")
 
-        if not selected_exercises:
+        # Validate at least one exercise selected
+        if not exercise_ids or all(not ex for ex in exercise_ids):
             messages.error(request, "Please select at least one exercise for the session.")
             return render(request, "my_app/create_gym_session.html", {
                 "exercises": exercises,
@@ -60,11 +65,13 @@ def create_gym_session(request):
                 session_date=timezone.now(),  # Automatically set current date/time
             )
 
-            for order_number, exercise_id in enumerate(selected_exercises, start=1):
-                if not exercise_id:
+            for order_number, ex_id in enumerate(exercise_ids, start=1):
+                if not ex_id:
                     continue
-
-                exercise = Exercise.objects.get(id=exercise_id)
+                try:
+                    exercise = Exercise.objects.get(id=ex_id)
+                except Exercise.DoesNotExist:
+                    continue
 
                 session_exercise = SessionExercise.objects.create(
                     session=gym_session,
@@ -72,14 +79,20 @@ def create_gym_session(request):
                     order_number=order_number,
                 )
 
-                reps = request.POST.get(f"reps_{exercise_id}")
-                weight = request.POST.get(f"weight_{exercise_id}")
+                # safe extraction from parallel lists
+                idx = order_number - 1
+                reps = None
+                weight = None
+                if idx < len(reps_list):
+                    reps = reps_list[idx] or None
+                if idx < len(weight_list):
+                    weight = weight_list[idx] or None
 
                 ExerciseSet.objects.create(
                     session_exercise=session_exercise,
                     set_number=1,
-                    reps=reps or None,
-                    weight=weight or None,
+                    reps=reps,
+                    weight=weight,
                     completed=False,
                 )
 
@@ -101,26 +114,25 @@ def create_gym_session(request):
                     ex_name = se.exercise.exercise_name
                     for s in se.sets.all():
                         try:
-                            reps = int(s.reps) if s.reps is not None else None
+                            reps_val = int(s.reps) if s.reps is not None else None
                         except Exception:
-                            reps = None
-                        if s.weight and reps and ex_name in staple_names and reps in (1,3,5):
+                            reps_val = None
+                        if s.weight and reps_val and ex_name in staple_names and reps_val in (1,3,5):
                             weight_val = float(s.weight)
                             # check user's previous best excluding this session
                             prev_best = ExerciseSet.objects.filter(
                                 session_exercise__session__profile=profile,
                                 session_exercise__exercise=se.exercise,
-                                reps=reps
+                                reps=reps_val
                             ).exclude(session_exercise__session=gym_session).aggregate(prev_max=Max('weight'))['prev_max']
                             if not prev_best or float(prev_best) < weight_val:
                                 extra_xp += pr_xp
-                                messages.success(request, f"New PR on {ex_name} {reps}RM! +{pr_xp} XP")
+                                messages.success(request, f"New PR on {ex_name} {reps_val}RM! +{pr_xp} XP")
 
                             # determine global rank for this weight for the lift/rep
-                            # obtain max per profile then compute rank
                             profile_maxes = ExerciseSet.objects.filter(
                                 session_exercise__exercise=se.exercise,
-                                reps=reps
+                                reps=reps_val
                             ).values('session_exercise__session__profile').annotate(max_weight=Max('weight')).order_by('-max_weight')
                             # find rank position for current weight
                             rank = 1
@@ -132,7 +144,7 @@ def create_gym_session(request):
                             if rank in rank_xp_map:
                                 xp_for_rank = rank_xp_map[rank]
                                 extra_xp += xp_for_rank
-                                messages.success(request, f"Placed #{rank} on {ex_name} {reps}RM leaderboard! +{xp_for_rank} XP")
+                                messages.success(request, f"Placed #{rank} on {ex_name} {reps_val}RM leaderboard! +{xp_for_rank} XP")
                 if extra_xp > 0:
                     profile.add_xp(extra_xp)
             except Exception:

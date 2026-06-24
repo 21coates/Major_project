@@ -16,6 +16,8 @@
         <li>No exercises found for this session.</li>
     {% endfor %}
 </ul>
-<a href="{% url 'my_app:workouts' %}">Back to Workouts</a>
-<a href="{% url 'my_app:home' %}">Return to Home</a>
+<div style="display:flex;gap:12px;">
+    <a href="{% url 'my_app:workouts' %}" class="btn secondary">Back to Workouts</a>
+    <a href="{% url 'my_app:home' %}" class="btn secondary">Return to Home</a>
+</div>
 {% endblock %}
