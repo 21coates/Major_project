@@ -92,6 +92,24 @@ class Profile(models.Model):
         req = Profile.xp_for_next_level(self.level)
         return f"{int(self.xp)} / {req}"
 
+    @property
+    def streak_multiplier(self) -> float:
+        """Calculate the XP multiplier based on current streak_count.
+        Base is 1.0, increases by 0.1 per consecutive day after the first, capped at 3.0x (i.e. +2.0 max).
+        Returned value rounded to one decimal place for display.
+        """
+        sc = int(self.streak_count or 0)
+        if sc <= 1:
+            return 1.0
+        mult = 1.0 + min(2.0, (sc - 1) * 0.1)
+        return round(mult, 1)
+
+    @property
+    def streak_display(self) -> str:
+        """A small display string including fire emoji, the streak count and multiplier, for templates."""
+        sc = int(self.streak_count or 0)
+        return f"🔥 {sc} • x{self.streak_multiplier:.1f}"
+
 
 def _unique_nickname(base: str) -> str:
     base = (base or "user").strip() or "user"

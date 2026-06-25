@@ -1,0 +1,27 @@
+{% extends 'my_app/base.html' %}
+{% block content %}
+<h1>Powerlifting Leaderboards</h1>
+{% for lift, reps in powerlifting.items %}
+    <section class="card mt-12">
+    <h2>{{ lift }}</h2>
+    {% for rep, sets in reps.items %}
+        <h3>{{ rep }} Rep Max</h3>
+        <table>
+            <tr><th>Rank</th><th>Nickname</th><th>Max Weight (kg)</th></tr>
+            {% for entry in sets %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ entry.session_exercise__session__profile__nickname }}</td>
+                <td>{{ entry.max_weight }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3">No data available.</td></tr>
+            {% endfor %}
+        </table>
+    {% endfor %}
+    </section>
+{% endfor %}
+<div class="center mt-12">
+    <a href="{% url 'my_app:home' %}" class="btn secondary" aria-label="Return to Home">Return to Home</a>
+</div>
+{% endblock %}

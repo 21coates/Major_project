@@ -8,9 +8,17 @@
       <div style="color:var(--muted-text)">Level {{ profile.level }}</div>
     </div>
     <div style="min-width:220px;flex:1">
-      <div class="xp-bar-label">XP: {{ profile.xp }} / {{ profile.xp_next_total }} ({{ profile.xp_percent }}%)</div>
-      <div class="xp-bar">
-        <div class="xp-bar-fill" style="width:{{ profile.xp_percent }}%"></div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="flex:1">
+          <div class="xp-bar-label">XP: {{ profile.xp_fraction }}</div>
+          <div class="xp-bar">
+            <div class="xp-bar-fill" style="width:{{ profile.xp_percent }}%"></div>
+          </div>
+        </div>
+        <div style="min-width:110px;text-align:right;font-weight:700;color:var(--accent);">
+          <div title="Current streak and multiplier">{{ profile.streak_display }}</div>
+          <div style="font-size:12px;color:var(--muted-text);font-weight:600">streak</div>
+        </div>
       </div>
     </div>
   </div>

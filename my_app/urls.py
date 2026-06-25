@@ -11,5 +11,7 @@ urlpatterns = [
     path("leaderboard/bench/", views.leaderboard_bench, name="leaderboard_bench"),
     path("leaderboard/squat/", views.leaderboard_squat, name="leaderboard_squat"),
     path("leaderboard/deadlift/", views.leaderboard_deadlift, name="leaderboard_deadlift"),
+    path("leaderboard/powerlifting/", views.leaderboard_powerlifting, name="leaderboard_powerlifting"),
+    path("leaderboard/xp/", views.leaderboard_xp, name="leaderboard_xp"),
     path("create_exercise/", views.create_exercise, name="create_exercise"),
 ]

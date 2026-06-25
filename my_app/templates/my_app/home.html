@@ -33,10 +33,12 @@
         <!-- Profile removed from the homepage navigation; access via avatar only -->
     </div>
     <div class="leaderboard-links" style="margin-top:1em;">
-        <h3>Lift Leaderboards</h3>
-        <a href="{% url 'my_app:leaderboard_bench' %}" class="homepage-btn">Bench - 1/3/5 RM</a>
-        <a href="{% url 'my_app:leaderboard_squat' %}" class="homepage-btn">Squat - 1/3/5 RM</a>
-        <a href="{% url 'my_app:leaderboard_deadlift' %}" class="homepage-btn">Deadlift - 1/3/5 RM</a>
-    </div>
+        <h3 style="text-align:center;width:100%;margin-bottom:8px;">Leaderboards</h3>
+        <div class="homepage-options" style="justify-content:center;">
+            <a href="{% url 'my_app:leaderboard_xp' %}" class="homepage-btn">XP Leaderboard</a>
+            <a href="{% url 'my_app:leaderboard_powerlifting' %}" class="homepage-btn">Powerlifting (Bench/Squat/Deadlift)</a>
+            <a class="homepage-btn disabled" aria-disabled="true" title="Coming soon">Achievements (coming soon)</a>
+        </div>
+     </div>
 </div>
 {% endblock %}

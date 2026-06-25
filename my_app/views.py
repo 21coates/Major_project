@@ -268,3 +268,39 @@ def _leaderboard_lift(request, lift_name):
         'lift_name': lift_name,
         'leaderboards': leaderboards
     })
+
+
+def leaderboard_xp(request):
+    """Show profiles ordered by level (desc) then xp (desc)."""
+    profiles = Profile.objects.select_related('user').order_by('-level', '-xp')
+    return render(request, 'my_app/leaderboard_xp.html', {
+        'profiles': profiles,
+    })
+
+
+@login_required(login_url="users:login")
+def leaderboard_powerlifting(request):
+    """Compile leaderboards for the three staple powerlifts and return a combined view.
+    Each lift contains 1/3/5RM leaderboards (same structure as _leaderboard_lift uses).
+    """
+    lifts = ['Bench Press', 'Squat', 'Deadlift']
+    rep_targets = [1, 3, 5]
+    powerlifting = {}
+    for lift in lifts:
+        rep_boards = {}
+        for rep in rep_targets:
+            sets = ExerciseSet.objects.filter(
+                session_exercise__exercise__exercise_name__iexact=lift,
+                reps=rep
+            ).values(
+                'session_exercise__session__profile__nickname',
+                'session_exercise__session__profile__id'
+            ).annotate(
+                max_weight=Max('weight')
+            ).order_by('-max_weight')
+            rep_boards[rep] = sets
+        powerlifting[lift] = rep_boards
+
+    return render(request, 'my_app/leaderboard_powerlifting.html', {
+        'powerlifting': powerlifting
+    })

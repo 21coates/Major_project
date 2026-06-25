@@ -1,0 +1,20 @@
+{% extends 'my_app/base.html' %}
+{% block content %}
+<h1>XP Leaderboard</h1>
+<table>
+    <tr><th>Rank</th><th>Nickname</th><th>Level</th><th>XP</th></tr>
+    {% for p in profiles %}
+    <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ p.nickname }}</td>
+        <td>{{ p.level }}</td>
+        <td>{{ p.xp }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="4">No users yet.</td></tr>
+    {% endfor %}
+</table>
+<div class="center mt-12">
+    <a href="{% url 'my_app:home' %}" class="btn secondary" aria-label="Return to Home">Return to Home</a>
+</div>
+{% endblock %}
